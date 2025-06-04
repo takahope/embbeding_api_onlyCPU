@@ -32,10 +32,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 20G
+          memory: 30G
           cpus: '4.0'
         reservations:
-          memory: 6G
+          memory: 15G
           cpus: '2.0'
     
     # 重啟策略
