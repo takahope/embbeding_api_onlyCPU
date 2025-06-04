@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  embedding-api:
+    image: biobankauditor/embedding-api:amd64cpu
+    ports:
+      - "8090:8000"
+    environment:
+      # 基本配置
+      - HOST=0.0.0.0
+      - PORT=8000
+      - PYTHONUNBUFFERED=1
+      
+      # CPU優化配置
+      - TOKENIZERS_PARALLELISM=false
+      - OMP_NUM_THREADS=4
+      - MKL_NUM_THREADS=4
+      - NUMEXPR_NUM_THREADS=4
+      - OPENBLAS_NUM_THREADS=4
+      
+      # 強制禁用CUDA
+      - CUDA_VISIBLE_DEVICES=""
+      
+      # 應用程序配置（與main.py中的環境變量對應）
+      - MAX_CONCURRENT_REQUESTS=4
+      - MAX_BATCH_SIZE=20
+      - MAX_TEXTS_PER_REQUEST=100
+      - NEW_MAX_LENGTH=8192
+      
+      
+    # 資源限制（針對CPU版本調整）
+    deploy:
+      resources:
+        limits:
+          memory: 20G
+          cpus: '4.0'
+        reservations:
+          memory: 6G
+          cpus: '2.0'
+    
+    # 重啟策略
+    restart: unless-stopped
+    
+    # 健康檢查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 30s  # 增加啟動時間，因為模型加載需要時間
+    
+    # 掛載卷
+    volumes:
+      - model_cache:/home/app/.cache/huggingface
+    
+    # 系統限制
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+    
+    # 安全配置
+    security_opt:
+      - no-new-privileges:true
+    
+    # 網絡配置
+    networks:
+      - embedding-network
+
+# 定義卷
+volumes:
+  model_cache:
+    driver: local
+
+# 定義網絡
+networks:
+  embedding-network:
+    driver: bridge

@@ -1,0 +1,28 @@
+# Web框架和API
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# 機器學習和嵌入模型 - CPU版本
+# 注意：torch需要從CPU專用索引安裝，在Dockerfile中處理
+sentence-transformers==2.6.1
+transformers==4.36.0
+tokenizers==0.15.0
+huggingface-hub==0.19.4
+
+# 數據處理和數值計算
+numpy==1.24.3
+
+# 系統監控和資源管理
+psutil==5.9.6
+
+# HTTP客戶端（用於健康檢查）
+requests==2.31.0
+
+# 安全和類型檢查
+typing-extensions==4.8.0
+
+# 注意：
+# 1. PyTorch CPU版本將在Dockerfile中單獨安裝
+# 2. 移除了不必要的依賴項
+# 3. 專注於main.py中實際使用的包
